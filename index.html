@@ -738,16 +738,19 @@
 //   grade    - e.g. "V7"
 //   location - e.g. "Bishop, CA"
 //   photo    - URL to the boulder photo (replace with your own hosted images)
-//   hint3    - Hint shown on 3rd guess (grade hint, e.g. "V7 boulder")
+//   aliases  - Array of additional accepted answers, e.g. ["Mandala", "The Mandala"]
+//   hint3    - Hint shown on 3rd guess (grade hint, e.g. "V{7} boulder")
 //   hint4    - Hint shown on 4th guess (location hint)
 //
 // PHOTO NOTES: Replace the placeholder photo URLs below with your actual boulder photos.
+// You can host photos on Google Drive, Dropbox, Imgur, or any image host.
 // Use a direct image link (ending in .jpg, .png, etc.)
 
 const PUZZLES = [
   {
     date: "2026-03-25",
     name: "Drawn and Quartered",
+    aliases: [],
     grade: "V13",
     location: "Leavenworth, WA",
     photo: "images/drawn_and_quartered.jpg",
@@ -757,6 +760,7 @@ const PUZZLES = [
   {
     date: "2026-03-26",
     name: "Hell or High Water",
+    aliases: ["Hell or Highwater"],
     grade: "V11",
     location: "Leavenworth, WA",
     photo: "images/hell_or_high_water.JPG",
@@ -766,6 +770,7 @@ const PUZZLES = [
   {
     date: "2026-03-27",
     name: "Mountain Man",
+    aliases: [],
     grade: "V9",
     location: "Leavenworth, WA",
     photo: "images/mountain_man.jpg",
@@ -775,6 +780,7 @@ const PUZZLES = [
   {
     date: "2026-03-28",
     name: "Pamplemousse",
+    aliases: [],
     grade: "V10",
     location: "Brione, Switzerland",
     photo: "images/pamplemousse.png",
@@ -784,6 +790,7 @@ const PUZZLES = [
   {
     date: "2026-03-29",
     name: "Pimpsqueak",
+    aliases: [],
     grade: "V8",
     location: "Leavenworth, WA",
     photo: "images/pimpsqueak.jpg",
@@ -793,6 +800,7 @@ const PUZZLES = [
   {
     date: "2026-03-30",
     name: "The Sleeping Lady",
+    aliases: ["Sleeping Lady"],
     grade: "V2",
     location: "Leavenworth, WA",
     photo: "images/sleeping_lady.jpg",
@@ -994,7 +1002,9 @@ function submitGuess() {
   const input = document.getElementById('guess-input').value.trim();
   if (!input) return;
 
-  const correct = input.toLowerCase() === state.puzzle.name.toLowerCase();
+  const input_lower = input.toLowerCase();
+  const allAnswers = [state.puzzle.name, ...(state.puzzle.aliases || [])];
+  const correct = allAnswers.some(a => a.toLowerCase() === input_lower);
   const g = state.currentGuess;
 
   if (correct) {
