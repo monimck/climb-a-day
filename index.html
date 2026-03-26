@@ -235,7 +235,6 @@
     height: auto;
     display: block;
     transform-origin: center center;
-    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   .zoom-badge {
     position: absolute;
@@ -498,6 +497,23 @@
   }
   .go-home-btn:hover { background: var(--green-dark); }
 
+  /* PHOTO LOADING SHIMMER */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .photo-container.loading {
+    min-height: 200px;
+    background: linear-gradient(90deg, var(--bg2) 25%, var(--border) 50%, var(--bg2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  .photo-img {
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .photo-img.loaded { opacity: 1; }
+
   /* SUBMIT BUTTON */
   .submit-boulder-btn {
     display: block;
@@ -620,9 +636,7 @@
           </div>
         </div>
       </div>
-      <a class="submit-boulder-btn"
-         href="mailto:YOUR_EMAIL_HERE?subject=Rest%20Day%20Boulder%20Submission&body=Problem%20Name%3A%20%0D%0AGrade%3A%20%0D%0ALocation%3A%20"
-      >SUBMIT A BOULDER</a>
+      <a class="submit-boulder-btn" onclick="window.location='mail'+'to:YOUR_EMAIL_HERE?subject=Rest%20Day%20Boulder%20Submission&body=Problem%20Name%3A%20%0D%0AGrade%3A%20%0D%0ALocation%3A%20%0D%0ADon%27t%20forget%20to%20attach%20your%20photo%20%3A)'" href="#">SUBMIT A BOULDER</a>
     </div>
   </div>
 
@@ -749,7 +763,7 @@
 
 </div>
 
-<script src="/puzzles.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/puzzles.js"></script>
 <script>
 
 
@@ -916,8 +930,20 @@ function renderGameScreen() {
 
   document.getElementById('attempt-label').textContent = ATTEMPT_LABELS[g];
   document.getElementById('zoom-label').textContent = 'ZOOM LEVEL ' + zoom + 'X';
-  document.getElementById('game-photo').src = state.puzzle.photo;
-  document.getElementById('game-photo').style.transform = 'scale(' + zoom + ')';
+  const photoEl = document.getElementById('game-photo');
+  const containerEl = document.querySelector('.photo-container');
+  photoEl.classList.remove('loaded');
+  containerEl.classList.add('loading');
+  photoEl.onload = () => {
+    containerEl.classList.remove('loading');
+    photoEl.classList.add('loaded');
+  };
+  if (photoEl.complete && photoEl.naturalWidth > 0) {
+    containerEl.classList.remove('loading');
+    photoEl.classList.add('loaded');
+  }
+  photoEl.src = state.puzzle.photo;
+  photoEl.style.transform = 'scale(' + zoom + ')';
 
   // Hints (auto-generated from grade and location)
   const hintEl = document.getElementById('hint-text');
@@ -1024,12 +1050,4 @@ document.getElementById('play-btn').addEventListener('click', startGame);
 // ─── INIT ──────────────────────────────────────────────────────────────────────
 renderHome();
 
-// ─── SERVICE WORKER ────────────────────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js');
-  });
-}
-</script>
-</body>
-</html>
+// ─── SERVICE WORKER ───────────────────────────────────�
