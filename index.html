@@ -1058,4 +1058,12 @@ document.getElementById('guess-input').addEventListener('keydown', e => {
 // ─── INIT ──────────────────────────────────────────────────────────────────────
 renderHome();
 
-// ─── SERVICE WORKER ───────────────────────────────────�
+// ─── SERVICE WORKER ────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js');
+  });
+}
+</script>
+</body>
+</html>
