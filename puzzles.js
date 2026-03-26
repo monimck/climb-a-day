@@ -34,7 +34,7 @@ const PUZZLES = [
     photo: "images/drawn_and_quartered.jpg"
   },
   {
-    date: "2026-03-27",
+    date: "2026-03-25",
     name: "Mountain Man",
     aliases: [],
     grade: "V9",
