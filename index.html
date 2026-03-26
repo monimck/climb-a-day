@@ -1114,10 +1114,7 @@ document.getElementById('submit-boulder-btn').addEventListener('click', function
   e.preventDefault();
   const em = 'YOUR_EMAIL_HERE';
   const sub = 'Rest Day Boulder Submission';
-  const bod = 'Problem Name: 
-Grade: 
-Location: 
-Don't forget to attach your photo :)';
+  const bod = 'Problem Name: \r\nGrade: \r\nLocation: \r\nDon\'t forget to attach your photo :)';
   window.location = 'mailto:' + em + '?subject=' + encodeURIComponent(sub) + '&body=' + encodeURIComponent(bod);
 });
 document.getElementById('guess-input').addEventListener('keydown', e => {
