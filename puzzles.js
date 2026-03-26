@@ -50,7 +50,7 @@ const PUZZLES = [
     photo: "images/pamplemousse.png"
   },
   {
-    date: "2026-03-29",
+    date: "2026-03-25",
     name: "Pimpsqueak",
     aliases: [],
     grade: "V8",
