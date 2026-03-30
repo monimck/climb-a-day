@@ -155,11 +155,11 @@ const PUZZLES = [
   },
   {
     date: "2026-04-08",
-    name: "Detatched Flake",
+    name: "Detached Flake",
     aliases: [],
     grade: "V1",
     location: "Squamish, BC",
-    photo: "images/detatched_flake.jpg"
+    photo: "images/detached_flake.jpg"
   },
   {
     date: "2026-04-09",
