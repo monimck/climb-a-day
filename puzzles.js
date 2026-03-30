@@ -392,5 +392,13 @@ const PUZZLES = [
     grade: "V10",
     location: "Joe's Valley, UT",
     photo: "images/resident_evil.jpg"
+  },
+  {
+    date: "2026-05-08",
+    name: "Drawn and Quartered",
+    aliases: ["Drawn", "Drawn n Quartered", "Drawn & Quartered"],
+    grade: "V13",
+    location: "Leavenworth, WA",
+    photo: "images/drawn_and_quartered.png"
   }
 ];
