@@ -155,210 +155,210 @@ const PUZZLES = [
   },
   {
     date: "2026-04-08",
-    name: "Atd",
+    name: "ATD",
     aliases: [],
-    grade: "V",
-    location: "",
+    grade: "V7",
+    location: "Squamish, BC",
     photo: "images/atd.png"
   },
   {
     date: "2026-04-09",
-    name: "Baptist",
-    aliases: [],
-    grade: "V",
-    location: "",
+    name: "The Baptist",
+    aliases: ["Baptist"],
+    grade: "V10",
+    location: "Sculptured Rocks, NH",
     photo: "images/baptist.jpg"
   },
   {
     date: "2026-04-10",
     name: "Bloody Knuckles",
     aliases: [],
-    grade: "V",
-    location: "",
+    grade: "V11",
+    location: "Horseshoe Canyon Ranch, AR",
     photo: "images/bloody_knuckles.jpg"
   },
   {
     date: "2026-04-11",
     name: "Blue Steel",
     aliases: [],
-    grade: "V",
-    location: "",
+    grade: "V8",
+    location: "Little Cottonwood Canyon, UT",
     photo: "images/blue_steel.jpg"
   },
   {
     date: "2026-04-12",
     name: "Checkerboard",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["The Checkerboard"],
+    grade: "V8",
+    location: "Bishop, CA",
     photo: "images/checkerboard.jpg"
   },
   {
     date: "2026-04-13",
     name: "Detatched Flake",
     aliases: [],
-    grade: "V",
-    location: "",
+    grade: "V1",
+    location: "Squamish, BC",
     photo: "images/detatched_flake.jpg"
   },
   {
     date: "2026-04-14",
     name: "Ghostface",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Ghost Face"],
+    grade: "V12",
+    location: "Red Rocks, NV",
     photo: "images/ghostface.jpg"
   },
   {
     date: "2026-04-15",
     name: "King Air",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Kingair"],
+    grade: "V10",
+    location: "Yosemite, CA",
     photo: "images/king_air.jpg"
   },
   {
     date: "2026-04-16",
-    name: "King and I",
+    name: "No Troublems",
     aliases: [],
-    grade: "V",
-    location: "",
-    photo: "images/king_and_i.jpg"
+    grade: "V10",
+    location: "Squamish, BC",
+    photo: "images/no_troublems.jpg"
   },
   {
     date: "2026-04-17",
     name: "King Cobra",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["King Kobra", "Cobra", "Kobra"],
+    grade: "V8",
+    location: "Yosemite, CA",
     photo: "images/king_cobra.png"
   },
   {
     date: "2026-04-18",
     name: "Knob Job",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Nob Job", "Knob"],
+    grade: "V2",
+    location: "Index, WA",
     photo: "images/knob_job.jpg"
   },
   {
     date: "2026-04-19",
     name: "Majestic",
     aliases: [],
-    grade: "V",
-    location: "",
+    grade: "V6",
+    location: "Squamish, BC",
     photo: "images/majestic.jpg"
   },
   {
     date: "2026-04-20",
     name: "Mega Man",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Megaman"],
+    grade: "V11",
+    location: "Hospital Boulders, AL",
     photo: "images/mega_man.jpg"
   },
   {
     date: "2026-04-21",
-    name: "No Troublems",
-    aliases: [],
-    grade: "V",
-    location: "",
-    photo: "images/no_troublems.jpg"
+    name: "The King",
+    aliases: ["King and I", "The King and I", "King"],
+    grade: "V6",
+    location: "Yosemite, CA",
+    photo: "images/king.jpg"
   },
   {
     date: "2026-04-22",
     name: "Nutsa",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Nutza"],
+    grade: "V11",
+    location: "Rocklands, South Africa",
     photo: "images/nutsa.jpg"
   },
   {
     date: "2026-04-23",
     name: "Origami Titan",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Bubblewrap", "Bubble Wrap"],
+    grade: "V11",
+    location: "Snake Hill, WV",
     photo: "images/origami_titan.jpg"
   },
   {
     date: "2026-04-24",
-    name: "Pan Galactic Gargle Blasters",
-    aliases: [],
-    grade: "V",
-    location: "",
-    photo: "images/pan_galactic_gargle_blasters.jpg"
+    name: "Pan Galactic Gargle Blaster",
+    aliases: ["Pan Galactic", "Gargle Blaster", "Pangalactic", "Pan Galactic Gargle Blasters", "Pangalactic Gargle Blaster"],
+    grade: "V10",
+    location: "Ibex, UT",
+    photo: "images/pan_galactic_gargle_blaster.jpg"
   },
   {
     date: "2026-04-25",
     name: "Pinotage",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Pino Tage", "Pinotage Sit"],
+    grade: "V8",
+    location: "Rocklands, South Africa",
     photo: "images/pinotage.jpg"
   },
   {
     date: "2026-04-26",
-    name: "Plumbers Crack",
-    aliases: [],
-    grade: "V",
-    location: "",
+    name: "Plumber's Crack",
+    aliases: ["Plumbers Crack"],
+    grade: "V2",
+    location: "Red Rocks, NV",
     photo: "images/plumbers_crack.jpg"
   },
   {
     date: "2026-04-27",
-    name: "Pro Touch",
-    aliases: [],
-    grade: "V",
-    location: "",
+    name: "Pro Touch Traverse",
+    aliases: ["Pro Touch", "Protouch Traverse", "Protouch"],
+    grade: "V6",
+    location: "Brione, Switzerland",
     photo: "images/pro_touch.jpg"
   },
   {
     date: "2026-04-28",
     name: "Roses and Bluejays",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Roses", "Roses and Blue Jays", "Roses & Bluejays", "Roses & Blue Jays"],
+    grade: "V13",
+    location: "Great Barrington, MA",
     photo: "images/roses_and_bluejays.jpg"
   },
   {
     date: "2026-04-29",
     name: "Squoze",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Squoz"],
+    grade: "V14",
+    location: "Red Rocks, NV",
     photo: "images/squoze.jpg"
   },
   {
     date: "2026-04-30",
     name: "Sundial",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Sun Dial"],
+    grade: "V8",
+    location: "Little Cottonwood Canyon, UT",
     photo: "images/sundial.jpg"
   },
   {
     date: "2026-05-01",
-    name: "Sword",
-    aliases: [],
-    grade: "V",
-    location: "",
+    name: "The Sword",
+    aliases: ["Sword"],
+    grade: "V3",
+    location: "Leavenworth, WA",
     photo: "images/sword.jpg"
   },
   {
     date: "2026-05-02",
     name: "Tiger Claw",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Tigerclaw"],
+    grade: "V11",
+    location: "Rocklands, South Africa",
     photo: "images/tiger_claw.jpg"
   },
   {
     date: "2026-05-03",
     name: "Wookie Charms",
-    aliases: [],
-    grade: "V",
-    location: "",
+    aliases: ["Wooky Charms"],
+    grade: "V12",
+    location: "Chattanooga, TN",
     photo: "images/wookie_charms.jpg"
   }
 ];
