@@ -155,11 +155,11 @@ const PUZZLES = [
   },
   {
     date: "2026-04-08",
-    name: "ATD",
+    name: "Detatched Flake",
     aliases: [],
-    grade: "V7",
+    grade: "V1",
     location: "Squamish, BC",
-    photo: "images/atd.png"
+    photo: "images/detatched_flake.jpg"
   },
   {
     date: "2026-04-09",
@@ -179,11 +179,11 @@ const PUZZLES = [
   },
   {
     date: "2026-04-11",
-    name: "Blue Steel",
-    aliases: [],
+    name: "Sundial",
+    aliases: ["Sun Dial"],
     grade: "V8",
     location: "Little Cottonwood Canyon, UT",
-    photo: "images/blue_steel.jpg"
+    photo: "images/sundial.jpg"
   },
   {
     date: "2026-04-12",
@@ -195,11 +195,11 @@ const PUZZLES = [
   },
   {
     date: "2026-04-13",
-    name: "Detatched Flake",
+    name: "ATD",
     aliases: [],
-    grade: "V1",
+    grade: "V7",
     location: "Squamish, BC",
-    photo: "images/detatched_flake.jpg"
+    photo: "images/atd.png"
   },
   {
     date: "2026-04-14",
@@ -291,11 +291,11 @@ const PUZZLES = [
   },
   {
     date: "2026-04-25",
-    name: "Pinotage",
-    aliases: ["Pino Tage", "Pinotage Sit"],
-    grade: "V8",
+    name: "Tiger Claw",
+    aliases: ["Tigerclaw"],
+    grade: "V11",
     location: "Rocklands, South Africa",
-    photo: "images/pinotage.jpg"
+    photo: "images/tiger_claw.jpg"
   },
   {
     date: "2026-04-26",
@@ -331,11 +331,11 @@ const PUZZLES = [
   },
   {
     date: "2026-04-30",
-    name: "Sundial",
-    aliases: ["Sun Dial"],
+    name: "Blue Steel",
+    aliases: [],
     grade: "V8",
     location: "Little Cottonwood Canyon, UT",
-    photo: "images/sundial.jpg"
+    photo: "images/blue_steel.jpg"
   },
   {
     date: "2026-05-01",
@@ -347,11 +347,11 @@ const PUZZLES = [
   },
   {
     date: "2026-05-02",
-    name: "Tiger Claw",
-    aliases: ["Tigerclaw"],
-    grade: "V11",
+    name: "Pinotage",
+    aliases: ["Pino Tage", "Pinotage Sit"],
+    grade: "V8",
     location: "Rocklands, South Africa",
-    photo: "images/tiger_claw.jpg"
+    photo: "images/pinotage.jpg"
   },
   {
     date: "2026-05-03",
@@ -360,5 +360,37 @@ const PUZZLES = [
     grade: "V12",
     location: "Chattanooga, TN",
     photo: "images/wookie_charms.jpg"
+  },
+  {
+    date: "2026-05-04",
+    name: "Pipe Dreams",
+    aliases: ["Pipe Dream"],
+    grade: "V10",
+    location: "Farley, MA",
+    photo: "images/pipe_dreams.jpg"
+  },
+  {
+    date: "2026-05-05",
+    name: "Golden Harvest",
+    aliases: ["Gold Harvest", "Golden Showers"],
+    grade: "V10",
+    location: "Rocktown, GA",
+    photo: "images/golden_harvest.jpg"
+  },
+  {
+    date: "2026-05-06",
+    name: "The Shield",
+    aliases: ["Shield"],
+    grade: "V12",
+    location: "Stone Fort, TN",
+    photo: "images/shield.jpg"
+  },
+  {
+    date: "2026-05-07",
+    name: "Resident Evil",
+    aliases: [],
+    grade: "V10",
+    location: "Joe's Valley, UT",
+    photo: "images/resident_evil.jpg"
   }
 ];
