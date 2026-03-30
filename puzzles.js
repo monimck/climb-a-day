@@ -123,8 +123,8 @@ const PUZZLES = [
   },
   {
     date: "2026-04-04",
-    name: "The Hatchling RIP",
-    aliases: ["Hatchling"],
+    name: "The Hatchling (RIP)",
+    aliases: ["Hatchling", "The Hatchling"],
     grade: "V11",
     location: "Rocklands, South Africa",
     photo: "images/hatchling.jpg"
