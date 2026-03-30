@@ -152,5 +152,213 @@ const PUZZLES = [
     grade: "V8",
     location: "Rocklands, South Africa",
     photo: "images/rhino.jpg"
+  },
+  {
+    date: "2026-04-08",
+    name: "Atd",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/atd.png"
+  },
+  {
+    date: "2026-04-09",
+    name: "Baptist",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/baptist.jpg"
+  },
+  {
+    date: "2026-04-10",
+    name: "Bloody Knuckles",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/bloody_knuckles.jpg"
+  },
+  {
+    date: "2026-04-11",
+    name: "Blue Steel",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/blue_steel.jpg"
+  },
+  {
+    date: "2026-04-12",
+    name: "Checkerboard",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/checkerboard.jpg"
+  },
+  {
+    date: "2026-04-13",
+    name: "Detatched Flake",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/detatched_flake.jpg"
+  },
+  {
+    date: "2026-04-14",
+    name: "Ghostface",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/ghostface.jpg"
+  },
+  {
+    date: "2026-04-15",
+    name: "King Air",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/king_air.jpg"
+  },
+  {
+    date: "2026-04-16",
+    name: "King and I",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/king_and_i.jpg"
+  },
+  {
+    date: "2026-04-17",
+    name: "King Cobra",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/king_cobra.png"
+  },
+  {
+    date: "2026-04-18",
+    name: "Knob Job",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/knob_job.jpg"
+  },
+  {
+    date: "2026-04-19",
+    name: "Majestic",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/majestic.jpg"
+  },
+  {
+    date: "2026-04-20",
+    name: "Mega Man",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/mega_man.jpg"
+  },
+  {
+    date: "2026-04-21",
+    name: "No Troublems",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/no_troublems.jpg"
+  },
+  {
+    date: "2026-04-22",
+    name: "Nutsa",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/nutsa.jpg"
+  },
+  {
+    date: "2026-04-23",
+    name: "Origami Titan",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/origami_titan.jpg"
+  },
+  {
+    date: "2026-04-24",
+    name: "Pan Galactic Gargle Blasters",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/pan_galactic_gargle_blasters.jpg"
+  },
+  {
+    date: "2026-04-25",
+    name: "Pinotage",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/pinotage.jpg"
+  },
+  {
+    date: "2026-04-26",
+    name: "Plumbers Crack",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/plumbers_crack.jpg"
+  },
+  {
+    date: "2026-04-27",
+    name: "Pro Touch",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/pro_touch.jpg"
+  },
+  {
+    date: "2026-04-28",
+    name: "Roses and Bluejays",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/roses_and_bluejays.jpg"
+  },
+  {
+    date: "2026-04-29",
+    name: "Squoze",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/squoze.jpg"
+  },
+  {
+    date: "2026-04-30",
+    name: "Sundial",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/sundial.jpg"
+  },
+  {
+    date: "2026-05-01",
+    name: "Sword",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/sword.jpg"
+  },
+  {
+    date: "2026-05-02",
+    name: "Tiger Claw",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/tiger_claw.jpg"
+  },
+  {
+    date: "2026-05-03",
+    name: "Wookie Charms",
+    aliases: [],
+    grade: "V",
+    location: "",
+    photo: "images/wookie_charms.jpg"
   }
 ];
