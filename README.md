@@ -33,7 +33,8 @@ Drop your boulder photos into the `images/` folder. Recommended:
 
 ```
 on-sight/
-├── index.html       ← The app (HTML + CSS + game logic)
+├── index.html       ← The app (HTML + CSS)
+├── app.js           ← Game logic
 ├── puzzles.js       ← All puzzle data — edit this to add new problems
 ├── manifest.json    ← PWA manifest (app name, icon, colors)
 ├── sw.js            ← Service worker (offline support)
