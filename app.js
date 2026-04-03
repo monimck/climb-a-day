@@ -196,13 +196,22 @@ function renderGameScreen() {
     hintEl.textContent = 'Tap to reveal first letter';
     hintEl.style.display = 'block';
     hintEl.style.cursor = 'pointer';
+    hintEl.style.color = 'var(--brown)';
+    hintEl.style.textDecoration = 'underline';
+    hintEl.style.textUnderlineOffset = '3px';
     hintEl.onclick = () => {
       hintEl.textContent = 'Name begins with ' + firstLetter;
       hintEl.style.cursor = 'default';
+      hintEl.style.color = '';
+      hintEl.style.textDecoration = '';
+      hintEl.style.textUnderlineOffset = '';
       hintEl.onclick = null;
     };
   } else {
     hintEl.style.display = 'none';
+    hintEl.style.color = '';
+    hintEl.style.textDecoration = '';
+    hintEl.style.textUnderlineOffset = '';
     hintEl.onclick = null;
   }
 
