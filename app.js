@@ -2,6 +2,7 @@
 const ZOOM_LEVELS = [4, 3, 2, 1]; // guess 1 = 4x, guess 2 = 3x, guess 3 = 2x, guess 4 = 1x
 const ATTEMPT_LABELS = ["ONSIGHT ATTEMPT", "2ND GO", "3RD GO", "LAST GO BEST GO"];
 // ─── STATE ─────────────────────────────────────────────────────────────────────
+let archiveDatePlaying = null; // date string of the archive puzzle being played
 let state = {
   currentGuess: 0,   // 0-indexed
   puzzle: null,
@@ -125,7 +126,6 @@ function renderHome() {
     document.getElementById('play-btn').textContent = "VIEW TODAY'S RESULT";
     document.getElementById('play-btn').onclick = viewTodayResult;
   } else {
-    document.getElementById('play-btn').textContent = "PLAY TODAY'S CHALLENGE";
     document.getElementById('play-btn').textContent = "PLAY TODAY'S CHALLENGE";
     document.getElementById('play-btn').onclick = startGame;
   }
@@ -427,7 +427,6 @@ function resetResultUI(prefix) {
   if (nextBtn) nextBtn.style.display = 'none';
 }
 
-function showArchiveSuccessScreen(guessNum) {
 function getNextUnplayedPuzzle(afterDateStr) {
   const todayStr = getTodayString();
   const history = loadArchiveHistory();
@@ -676,8 +675,6 @@ function emptyCell() {
 }
 
 // ─── ARCHIVE GAME ──────────────────────────────────────────────────────────────
-let archiveDatePlaying = null; // date string of the archive puzzle being played
-
 function startArchiveGame(dateStr) {
   const puzzle = PUZZLES.find(p => p.date === dateStr);
   if (!puzzle) { showToast('No puzzle for that date'); return; }
