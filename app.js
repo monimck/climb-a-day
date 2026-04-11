@@ -260,6 +260,7 @@ function submitGuess() {
       recordArchiveResult(archiveDatePlaying, 'win');
       let stats = loadStats();
       stats.sends = (stats.sends || 0) + 1;
+      stats.distribution[g] = (stats.distribution[g] || 0) + 1;
       saveStats(stats);
       const playedDate = archiveDatePlaying;
       archiveDatePlaying = null;
@@ -307,6 +308,7 @@ function submitGuess() {
 
 // ─── SUCCESS SCREEN ────────────────────────────────────────────────────────────
 function showSuccessScreen(stats, guessNum) {
+  resetResultUI('success');
   const p = state.puzzle;
   const gn = guessNum || stats.lastGuessNum || 1;
   const labels = ['1 ATTEMPT', '2 ATTEMPTS', '3 ATTEMPTS', '4 ATTEMPTS'];
@@ -325,6 +327,7 @@ function showSuccessScreen(stats, guessNum) {
 
 // ─── FAILURE SCREEN ────────────────────────────────────────────────────────────
 function showFailureScreen(stats) {
+  resetResultUI('failure');
   const p = state.puzzle;
   document.getElementById('failure-photo').src = p.photo;
   document.getElementById('failure-name').textContent = p.name;
