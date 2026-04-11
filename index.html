@@ -1029,7 +1029,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
       </div>
-      <div class="result-stats">
+      <div class="result-stats" id="success-result-stats">
         <div class="result-stat-card streak-card">
           <div class="result-stat-label">Streak</div>
           <div class="result-stat-value"><span id="success-streak">0</span><span class="result-stat-unit" id="success-streak-unit">Days</span></div>
@@ -1039,15 +1039,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="result-stat-value"><span class="result-time-big" id="next-up-h">14</span><span class="result-time-small" id="next-up-m">h 22m</span></div>
         </div>
       </div>
-      <div class="result-tagline">Climb hard, play harder. See you tomorrow.</div>
-      <button class="share-btn" onclick="shareResult()">
+      <div class="result-tagline" id="success-tagline">Climb hard, play harder. See you tomorrow.</div>
+      <button class="share-btn" id="success-share-btn" onclick="shareResult()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
           <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
         </svg>
         SHARE RESULT
       </button>
-      <button class="go-home-btn" onclick="goHome()">GO HOME</button>
+      <button class="go-home-btn" id="success-home-btn" onclick="goHome()">GO HOME</button>
     </div>
   </div>
 
@@ -1072,7 +1072,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
       </div>
-      <div class="result-stats">
+      <div class="result-stats" id="failure-result-stats">
         <div class="result-stat-card streak-card">
           <div class="result-stat-label">Streak</div>
           <div class="result-stat-value red"><span id="failure-streak">0</span><span class="result-stat-unit" id="failure-streak-unit">Days</span></div>
@@ -1082,15 +1082,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="result-stat-value"><span class="result-time-big" id="failure-next-up-h">14</span><span class="result-time-small" id="failure-next-up-m">h 22m</span></div>
         </div>
       </div>
-      <div class="result-tagline">Climb hard, play harder. See you tomorrow.</div>
-      <button class="share-btn" onclick="shareResult()">
+      <div class="result-tagline" id="failure-tagline">Climb hard, play harder. See you tomorrow.</div>
+      <button class="share-btn" id="failure-share-btn" onclick="shareResult()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
           <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
         </svg>
         SHARE RESULT
       </button>
-      <button class="go-home-btn" onclick="goHome()">GO HOME</button>
+      <button class="go-home-btn" id="failure-home-btn" onclick="goHome()">GO HOME</button>
     </div>
   </div>
 

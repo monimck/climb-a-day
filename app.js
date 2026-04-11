@@ -385,7 +385,49 @@ async function shareResult() {
 }
 
 // ─── ARCHIVE SUCCESS / FAILURE ─────────────────────────────────────────────────
-// ─── NEXT UNPLAYED ARCHIVE PUZZLE ──────────────────────────────────────────────
+// ─── HELPERS: show/hide archive UI ─────────────────────────────────────────────
+function setArchiveResultUI(prefix, playedDate) {
+  // Hide stat cards, tagline, share button
+  document.getElementById(prefix + '-result-stats').style.display = 'none';
+  document.getElementById(prefix + '-tagline').style.display = 'none';
+  document.getElementById(prefix + '-share-btn').style.display = 'none';
+
+  // Set up "Back to Archive" on the home btn
+  const homeBtn = document.getElementById(prefix + '-home-btn');
+  homeBtn.textContent = 'BACK TO ARCHIVE';
+  homeBtn.onclick = () => { goHome(); showArchiveScreen(); };
+
+  // Add "Next Proj" button if there's another unplayed puzzle
+  const nextPuzzle = getNextUnplayedPuzzle(playedDate);
+  let nextBtn = document.getElementById(prefix + '-next-proj-btn');
+  if (!nextBtn) {
+    nextBtn = document.createElement('button');
+    nextBtn.id = prefix + '-next-proj-btn';
+    nextBtn.className = 'go-home-btn';
+    nextBtn.style.cssText = 'margin-bottom:12px;background:transparent;color:var(--green);border:1.5px solid var(--green);';
+    homeBtn.parentNode.insertBefore(nextBtn, homeBtn);
+  }
+  if (nextPuzzle) {
+    nextBtn.textContent = 'NEXT PROJ';
+    nextBtn.style.display = 'block';
+    nextBtn.onclick = () => { startArchiveGame(nextPuzzle.date); };
+  } else {
+    nextBtn.style.display = 'none';
+  }
+}
+
+function resetResultUI(prefix) {
+  document.getElementById(prefix + '-result-stats').style.display = '';
+  document.getElementById(prefix + '-tagline').style.display = '';
+  document.getElementById(prefix + '-share-btn').style.display = '';
+  const homeBtn = document.getElementById(prefix + '-home-btn');
+  homeBtn.textContent = 'GO HOME';
+  homeBtn.onclick = goHome;
+  const nextBtn = document.getElementById(prefix + '-next-proj-btn');
+  if (nextBtn) nextBtn.style.display = 'none';
+}
+
+function showArchiveSuccessScreen(guessNum) {
 function getNextUnplayedPuzzle(afterDateStr) {
   const todayStr = getTodayString();
   const history = loadArchiveHistory();
@@ -393,32 +435,6 @@ function getNextUnplayedPuzzle(afterDateStr) {
   return PUZZLES
     .filter(p => p.date > afterDateStr && p.date < todayStr && !history[p.date])
     .sort((a, b) => a.date.localeCompare(b.date))[0] || null;
-}
-
-function setArchiveNextBtn(screenId, currentDateStr) {
-  const screen = document.getElementById(screenId);
-  let nextBtn = screen.querySelector('.archive-next-puzzle-btn');
-
-  const nextPuzzle = getNextUnplayedPuzzle(currentDateStr);
-
-  if (nextPuzzle) {
-    if (!nextBtn) {
-      nextBtn = document.createElement('button');
-      nextBtn.className = 'archive-next-puzzle-btn go-home-btn';
-      nextBtn.style.cssText = 'margin-bottom:12px;background:transparent;color:var(--green);border:1.5px solid var(--green);';
-      // Insert before the go-home-btn
-      const homeBtn = screen.querySelector('.go-home-btn');
-      screen.querySelector('.result-content').insertBefore(nextBtn, homeBtn);
-    }
-    nextBtn.textContent = 'NEXT PROJ';
-    nextBtn.onclick = () => {
-      // Remove the button before navigating so it doesn't persist
-      nextBtn.remove();
-      startArchiveGame(nextPuzzle.date);
-    };
-  } else if (nextBtn) {
-    nextBtn.remove();
-  }
 }
 
 function showArchiveSuccessScreen(guessNum) {
@@ -429,18 +445,9 @@ function showArchiveSuccessScreen(guessNum) {
   document.getElementById('success-name').textContent = p.name;
   document.getElementById('success-location').textContent = p.location;
   document.getElementById('success-grade').textContent = p.grade;
-  // Hide streak / next-up for archive games
-  document.getElementById('success-streak').textContent = '—';
-  document.getElementById('success-streak-unit').textContent = '';
-  document.getElementById('next-up-h').textContent = '';
-  document.getElementById('next-up-m').textContent = 'Archive play';
-  // Swap GO HOME to go back to archive
-  const homeBtn = document.querySelector('#screen-success .go-home-btn');
-  homeBtn.textContent = 'BACK TO ARCHIVE';
-  homeBtn.onclick = () => { goHome(); showArchiveScreen(); };
   const playedDate = archiveDatePlaying || getTodayString();
   showScreen('screen-success');
-  setArchiveNextBtn('screen-success', playedDate);
+  setArchiveResultUI('success', playedDate);
 }
 
 function showArchiveFailureScreen() {
@@ -449,28 +456,16 @@ function showArchiveFailureScreen() {
   document.getElementById('failure-name').textContent = p.name;
   document.getElementById('failure-location').textContent = p.location;
   document.getElementById('failure-grade').textContent = p.grade;
-  document.getElementById('failure-streak').textContent = '—';
-  document.getElementById('failure-streak-unit').textContent = '';
-  document.getElementById('failure-next-up-h').textContent = '';
-  document.getElementById('failure-next-up-m').textContent = 'Archive play';
-  const homeBtn = document.querySelector('#screen-failure .go-home-btn');
-  homeBtn.textContent = 'BACK TO ARCHIVE';
-  homeBtn.onclick = () => { goHome(); showArchiveScreen(); };
   const playedDate = archiveDatePlaying || getTodayString();
   showScreen('screen-failure');
-  setArchiveNextBtn('screen-failure', playedDate);
+  setArchiveResultUI('failure', playedDate);
 }
 
 // ─── GO HOME ───────────────────────────────────────────────────────────────────
 function goHome() {
   archiveDatePlaying = null;
-  // Reset result screen buttons back to default
-  const successHomeBtn = document.querySelector('#screen-success .go-home-btn');
-  if (successHomeBtn) { successHomeBtn.textContent = 'GO HOME'; successHomeBtn.onclick = goHome; }
-  const failureHomeBtn = document.querySelector('#screen-failure .go-home-btn');
-  if (failureHomeBtn) { failureHomeBtn.textContent = 'GO HOME'; failureHomeBtn.onclick = goHome; }
-  // Remove any lingering next-puzzle buttons
-  document.querySelectorAll('.archive-next-puzzle-btn').forEach(b => b.remove());
+  resetResultUI('success');
+  resetResultUI('failure');
   renderHome();
   showScreen('screen-home');
 }
@@ -581,7 +576,14 @@ function renderArchiveCalendar() {
   document.getElementById('archive-month-name').textContent = MONTH_NAMES_SHORT[archiveMonth];
   document.getElementById('archive-month-year').textContent = archiveYear;
 
-  // Disable next btn if already on current month
+  // Find the earliest and latest months that have puzzles
+  const firstPuzzle = PUZZLES.reduce((min, p) => p.date < min ? p.date : min, PUZZLES[0].date);
+  const firstPuzzleYear  = parseInt(firstPuzzle.slice(0, 4));
+  const firstPuzzleMonth = parseInt(firstPuzzle.slice(5, 7)) - 1;
+
+  // Disable prev btn if on the earliest puzzle month, next btn if on current month
+  const prevBtn = document.getElementById('archive-prev-btn');
+  prevBtn.disabled = (archiveYear === firstPuzzleYear && archiveMonth === firstPuzzleMonth);
   const nextBtn = document.getElementById('archive-next-btn');
   nextBtn.disabled = (archiveYear === today.getFullYear() && archiveMonth === today.getMonth());
 
