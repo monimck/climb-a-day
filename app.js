@@ -577,11 +577,13 @@ function recordArchiveResult(dateStr, result, attempts) {
   saveArchiveHistory(h);
 }
 
-function showArchiveScreen() {
+function showArchiveScreen(resetMonth = false) {
   migrateStatsToArchive();
-  const today = new Date();
-  archiveYear  = today.getFullYear();
-  archiveMonth = today.getMonth();
+  if (resetMonth || archiveYear === null || archiveMonth === null) {
+    const today = new Date();
+    archiveYear  = today.getFullYear();
+    archiveMonth = today.getMonth();
+  }
   renderArchiveCalendar();
   showScreen('screen-archive');
 }
