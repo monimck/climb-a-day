@@ -135,12 +135,12 @@ function viewTodayResult() {
   const stats = loadStats();
   state.puzzle = getTodayPuzzle();
   if (stats.lastResult === 'win') {
-    if (!stats.lastGuessNum) {
-      const h = loadArchiveHistory();
-      const entry = h[getTodayString()];
-      if (entry && entry.attempts) stats.lastGuessNum = entry.attempts;
-    }
-    showSuccessScreen(stats);
+    // Always read guessNum from archive history, which is written reliably on every win.
+    // Fall back to stats.lastGuessNum for saves made before archive history was introduced.
+    const h = loadArchiveHistory();
+    const entry = h[getTodayString()];
+    const guessNum = (entry && entry.attempts) ? entry.attempts : (stats.lastGuessNum || 1);
+    showSuccessScreen(stats, guessNum);
   } else {
     showFailureScreen(stats);
   }
