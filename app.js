@@ -584,10 +584,12 @@ function recordArchiveResult(dateStr, result, attempts) {
 
 function showArchiveScreen(resetMonth = false) {
   migrateStatsToArchive();
+  console.log('[Archive] showArchiveScreen called. resetMonth=', resetMonth, 'archiveYear=', archiveYear, 'archiveMonth=', archiveMonth);
   if (resetMonth || archiveYear === null || archiveMonth === null) {
     const today = new Date();
     archiveYear  = today.getFullYear();
     archiveMonth = today.getMonth();
+    console.log('[Archive] Reset to current month:', archiveYear, archiveMonth);
   }
   renderArchiveCalendar();
   showScreen('screen-archive');
@@ -716,6 +718,7 @@ function startArchiveGame(dateStr) {
   // so Back to Archive always returns to the right month.
   archiveYear  = parseInt(dateStr.slice(0, 4));
   archiveMonth = parseInt(dateStr.slice(5, 7)) - 1;
+  console.log('[Archive] startArchiveGame set month:', archiveYear, archiveMonth, 'for', dateStr);
 
   archiveDatePlaying   = dateStr;
   state.puzzle         = puzzle;
