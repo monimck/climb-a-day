@@ -395,7 +395,12 @@ function setArchiveResultUI(prefix, playedDate, reviewOnly = false) {
   homeBtn.textContent = 'BACK TO ARCHIVE';
   homeBtn.className = 'submit-boulder-btn archive-btn';
   homeBtn.style.marginTop = '0';
-  homeBtn.onclick = () => { goHome(); showArchiveScreen(); };
+  homeBtn.onclick = () => {
+    archiveDatePlaying = null;
+    resetResultUI('success');
+    resetResultUI('failure');
+    showArchiveScreen();
+  };
 
   // Add "Next Proj" as primary button above "Back to Archive" (not shown in review mode)
   const nextPuzzle = reviewOnly ? null : getNextUnplayedPuzzle(playedDate);
@@ -706,6 +711,11 @@ function emptyCell() {
 function startArchiveGame(dateStr) {
   const puzzle = PUZZLES.find(p => p.date === dateStr);
   if (!puzzle) { showToast('No puzzle for that date'); return; }
+
+  // Ensure archiveYear/Month reflect the month this puzzle belongs to,
+  // so Back to Archive always returns to the right month.
+  archiveYear  = parseInt(dateStr.slice(0, 4));
+  archiveMonth = parseInt(dateStr.slice(5, 7)) - 1;
 
   archiveDatePlaying   = dateStr;
   state.puzzle         = puzzle;
