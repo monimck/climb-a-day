@@ -2,6 +2,7 @@
 const ZOOM_LEVELS = [4, 3, 2, 1]; // guess 1 = 4x, guess 2 = 3x, guess 3 = 2x, guess 4 = 1x
 const ATTEMPT_LABELS = ["ONSIGHT ATTEMPT", "2ND GO", "3RD GO", "LAST GO BEST GO"];
 // ─── STATE ─────────────────────────────────────────────────────────────────────
+let archiveDatePlaying = null; // date string of the archive puzzle being played
 let state = {
   currentGuess: 0,   // 0-indexed
   puzzle: null,
@@ -126,7 +127,6 @@ function renderHome() {
     document.getElementById('play-btn').onclick = viewTodayResult;
   } else {
     document.getElementById('play-btn').textContent = "PLAY TODAY'S CHALLENGE";
-    document.getElementById('play-btn').textContent = "PLAY TODAY'S CHALLENGE";
     document.getElementById('play-btn').onclick = startGame;
   }
 }
@@ -135,7 +135,12 @@ function viewTodayResult() {
   const stats = loadStats();
   state.puzzle = getTodayPuzzle();
   if (stats.lastResult === 'win') {
-    showSuccessScreen(stats);
+    // Always read guessNum from archive history, which is written reliably on every win.
+    // Fall back to stats.lastGuessNum for saves made before archive history was introduced.
+    const h = loadArchiveHistory();
+    const entry = h[getTodayString()];
+    const guessNum = (entry && entry.attempts) ? entry.attempts : (stats.lastGuessNum || 1);
+    showSuccessScreen(stats, guessNum);
   } else {
     showFailureScreen(stats);
   }
@@ -143,6 +148,7 @@ function viewTodayResult() {
 
 // ─── GAME SCREEN ───────────────────────────────────────────────────────────────
 function startGame() {
+  archiveDatePlaying = null;
   state.puzzle = getTodayPuzzle();
   state.currentGuess = 0;
   state.finished = false;
@@ -251,27 +257,47 @@ function submitGuess() {
   const correct = allAnswers.some(a => a.toLowerCase() === input_lower);
   const g = state.currentGuess;
 
+  // Are we playing an archive (past) puzzle?
+  const isArchive = archiveDatePlaying && archiveDatePlaying !== getTodayString();
+
   if (correct) {
-    let stats = loadStats();
-    stats = updateStreak(stats, true);
-    stats.distribution[g] = (stats.distribution[g] || 0) + 1;
-    stats.lastGuessNum = g + 1;
-    saveStats(stats);
-    saveGameState({ date: getTodayString(), finished: true, currentGuess: g });
-    showSuccessScreen(stats, g + 1);
+    if (isArchive) {
+      recordArchiveResult(archiveDatePlaying, 'win', g + 1);
+      const playedDate = archiveDatePlaying;
+      archiveDatePlaying = null;
+      showArchiveSuccessScreen(g + 1, playedDate);
+    } else {
+      let stats = loadStats();
+      stats = updateStreak(stats, true);
+      stats.distribution[g] = (stats.distribution[g] || 0) + 1;
+      stats.lastGuessNum = g + 1;
+      saveStats(stats);
+      recordArchiveResult(getTodayString(), 'win', g + 1);
+      saveGameState({ date: getTodayString(), finished: true, currentGuess: g });
+      showSuccessScreen(stats, g + 1);
+    }
   } else {
     if (g === 3) {
-      // Used all 4 guesses
       state.pastGuesses.push(input);
-      let stats = loadStats();
-      stats = updateStreak(stats, false);
-      saveStats(stats);
-      saveGameState({ date: getTodayString(), finished: true, currentGuess: 4, pastGuesses: state.pastGuesses });
-      showFailureScreen(stats);
+      if (isArchive) {
+        recordArchiveResult(archiveDatePlaying, 'punt', 4);
+        const playedDate = archiveDatePlaying;
+        archiveDatePlaying = null;
+        showArchiveFailureScreen(playedDate);
+      } else {
+        let stats = loadStats();
+        stats = updateStreak(stats, false);
+        saveStats(stats);
+        recordArchiveResult(getTodayString(), 'punt', 4);
+        saveGameState({ date: getTodayString(), finished: true, currentGuess: 4, pastGuesses: state.pastGuesses });
+        showFailureScreen(stats);
+      }
     } else {
       state.pastGuesses.push(input);
       state.currentGuess += 1;
-      saveGameState({ date: getTodayString(), finished: false, currentGuess: state.currentGuess, pastGuesses: state.pastGuesses });
+      if (!isArchive) {
+        saveGameState({ date: getTodayString(), finished: false, currentGuess: state.currentGuess, pastGuesses: state.pastGuesses });
+      }
       showToast('Incorrect — try again!');
       renderGameScreen();
     }
@@ -280,6 +306,7 @@ function submitGuess() {
 
 // ─── SUCCESS SCREEN ────────────────────────────────────────────────────────────
 function showSuccessScreen(stats, guessNum) {
+  resetResultUI('success');
   const p = state.puzzle;
   const gn = guessNum || stats.lastGuessNum || 1;
   const labels = ['1 ATTEMPT', '2 ATTEMPTS', '3 ATTEMPTS', '4 ATTEMPTS'];
@@ -298,6 +325,7 @@ function showSuccessScreen(stats, guessNum) {
 
 // ─── FAILURE SCREEN ────────────────────────────────────────────────────────────
 function showFailureScreen(stats) {
+  resetResultUI('failure');
   const p = state.puzzle;
   document.getElementById('failure-photo').src = p.photo;
   document.getElementById('failure-name').textContent = p.name;
@@ -361,6 +389,9 @@ async function shareResult() {
 
 // ─── GO HOME ───────────────────────────────────────────────────────────────────
 function goHome() {
+  archiveDatePlaying = null;
+  resetResultUI('success');
+  resetResultUI('failure');
   renderHome();
   showScreen('screen-home');
 }
@@ -405,6 +436,263 @@ document.getElementById('submit-btn').addEventListener('click', submitGuess);
 document.getElementById('guess-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitGuess();
 });
+
+// ─── ARCHIVE ───────────────────────────────────────────────────────────────────
+let archiveYear = null;
+let archiveMonth = null; // 0-indexed
+
+const MONTH_NAMES_SHORT = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+/** Load the per-date play history map { dateStr: { result, attempts } } */
+function loadArchiveHistory() {
+  try {
+    return JSON.parse(localStorage.getItem('cadArchiveHistory')) || {};
+  } catch { return {}; }
+}
+
+function saveArchiveHistory(h) {
+  localStorage.setItem('cadArchiveHistory', JSON.stringify(h));
+}
+
+/** Call this whenever a game finishes to record it in the archive */
+function recordArchiveResult(dateStr, result, attempts) {
+  const h = loadArchiveHistory();
+  h[dateStr] = { result, attempts: attempts || null };
+  saveArchiveHistory(h);
+}
+
+function showArchiveScreen(resetMonth = false) {
+  if (resetMonth || archiveYear === null || archiveMonth === null) {
+    const today = new Date();
+    archiveYear  = today.getFullYear();
+    archiveMonth = today.getMonth();
+  }
+  renderArchiveCalendar();
+  showScreen('screen-archive');
+}
+
+function archiveNavMonth(delta) {
+  archiveMonth += delta;
+  if (archiveMonth > 11) { archiveMonth = 0; archiveYear++; }
+  if (archiveMonth < 0)  { archiveMonth = 11; archiveYear--; }
+  renderArchiveCalendar();
+}
+
+function renderArchiveCalendar() {
+  const today    = new Date();
+  const todayStr = getTodayString();
+
+  // Find the earliest month that has a puzzle
+  const firstPuzzle = PUZZLES.reduce((min, p) => p.date < min ? p.date : min, PUZZLES[0].date);
+  const firstPuzzleYear  = parseInt(firstPuzzle.slice(0, 4));
+  const firstPuzzleMonth = parseInt(firstPuzzle.slice(5, 7)) - 1;
+
+  document.getElementById('archive-month-name').textContent = MONTH_NAMES_SHORT[archiveMonth];
+  document.getElementById('archive-month-year').textContent = archiveYear;
+
+  // Disable prev btn if on the earliest puzzle month, next btn if on current month
+  const prevBtn = document.getElementById('archive-prev-btn');
+  prevBtn.disabled = (archiveYear === firstPuzzleYear && archiveMonth === firstPuzzleMonth);
+  const nextBtn = document.getElementById('archive-next-btn');
+  nextBtn.disabled = (archiveYear === today.getFullYear() && archiveMonth === today.getMonth());
+
+  const history = loadArchiveHistory();
+
+  // Build a set of dates that have puzzles
+  const puzzleDates = new Set(PUZZLES.map(p => p.date));
+
+  const firstDay = new Date(archiveYear, archiveMonth, 1);
+  const startDow = firstDay.getDay(); // 0=Sun
+  const daysInMonth = new Date(archiveYear, archiveMonth + 1, 0).getDate();
+
+  const grid = document.getElementById('archive-cal-grid');
+  grid.innerHTML = '';
+
+  // Leading empty cells
+  for (let i = 0; i < startDow; i++) {
+    grid.appendChild(emptyCell());
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const mm      = String(archiveMonth + 1).padStart(2, '0');
+    const dd      = String(d).padStart(2, '0');
+    const dateStr = `${archiveYear}-${mm}-${dd}`;
+
+    const isToday   = dateStr === todayStr;
+    const isFuture  = dateStr > todayStr;
+    const hasPuzzle = puzzleDates.has(dateStr);
+    const entry     = history[dateStr]; // { result, attempts } or undefined
+    const result    = entry ? entry.result : undefined;
+
+    const cell = document.createElement('div');
+    cell.className = 'archive-cal-cell';
+
+    const dateEl = document.createElement('div');
+    dateEl.className = 'archive-cal-date' + (isToday ? ' today' : '');
+    dateEl.textContent = d;
+    cell.appendChild(dateEl);
+
+    const circle = document.createElement('div');
+    circle.className = 'archive-cal-circle';
+
+    if (!hasPuzzle || isFuture) {
+      circle.classList.add('empty');
+    } else if (result === 'win') {
+      circle.classList.add('sent');
+      circle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+      circle.style.cursor = 'pointer';
+      circle.onclick = () => { viewArchivedResult(dateStr, 'win'); };
+    } else if (result === 'punt') {
+      circle.classList.add('punt');
+      circle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+      circle.style.cursor = 'pointer';
+      circle.onclick = () => { viewArchivedResult(dateStr, 'punt'); };
+    } else if (isToday) {
+      circle.classList.add('playable', 'today-marker');
+      circle.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
+      circle.onclick = () => { startGame(); };
+    } else {
+      circle.classList.add('playable');
+      circle.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
+      circle.onclick = () => { startArchiveGame(dateStr); };
+    }
+
+    cell.appendChild(circle);
+    grid.appendChild(cell);
+  }
+}
+
+function emptyCell() {
+  const cell = document.createElement('div');
+  cell.className = 'archive-cal-cell';
+  const dateEl = document.createElement('div');
+  dateEl.className = 'archive-cal-date';
+  cell.appendChild(dateEl);
+  const circle = document.createElement('div');
+  circle.className = 'archive-cal-circle empty';
+  cell.appendChild(circle);
+  return cell;
+}
+
+// ─── ARCHIVE GAME ──────────────────────────────────────────────────────────────
+function startArchiveGame(dateStr) {
+  const puzzle = PUZZLES.find(p => p.date === dateStr);
+  if (!puzzle) { showToast('No puzzle for that date'); return; }
+
+  // Set archive month so Back to Archive returns to the right month
+  archiveYear  = parseInt(dateStr.slice(0, 4));
+  archiveMonth = parseInt(dateStr.slice(5, 7)) - 1;
+
+  archiveDatePlaying = dateStr;
+  state.puzzle       = puzzle;
+  state.currentGuess = 0;
+  state.finished     = false;
+  state.pastGuesses  = [];
+
+  renderGameScreen();
+  showScreen('screen-game');
+}
+
+// ─── ARCHIVE RESULT UI HELPERS ─────────────────────────────────────────────────
+function setArchiveResultUI(prefix, playedDate, reviewOnly = false) {
+  document.getElementById(prefix + '-result-stats').style.display = 'none';
+  document.getElementById(prefix + '-tagline').style.display = 'none';
+  document.getElementById(prefix + '-share-btn').style.display = 'none';
+
+  const homeBtn = document.getElementById(prefix + '-home-btn');
+  homeBtn.textContent = 'BACK TO ARCHIVE';
+  homeBtn.className = 'submit-boulder-btn archive-btn';
+  homeBtn.style.marginTop = '0';
+  homeBtn.onclick = () => {
+    archiveDatePlaying = null;
+    resetResultUI('success');
+    resetResultUI('failure');
+    showArchiveScreen();
+  };
+
+  // "Next Proj" button — only shown after playing (not in review mode)
+  const nextPuzzle = reviewOnly ? null : getNextUnplayedPuzzle(playedDate);
+  let nextBtn = document.getElementById(prefix + '-next-proj-btn');
+  if (!nextBtn) {
+    nextBtn = document.createElement('button');
+    nextBtn.id = prefix + '-next-proj-btn';
+    nextBtn.className = 'go-home-btn';
+    nextBtn.style.marginBottom = '12px';
+    homeBtn.parentNode.insertBefore(nextBtn, homeBtn);
+  }
+  if (nextPuzzle) {
+    nextBtn.textContent = 'NEXT PROJ';
+    nextBtn.style.display = 'block';
+    nextBtn.onclick = () => { startArchiveGame(nextPuzzle.date); };
+  } else {
+    nextBtn.style.display = 'none';
+  }
+}
+
+function resetResultUI(prefix) {
+  document.getElementById(prefix + '-result-stats').style.display = '';
+  document.getElementById(prefix + '-tagline').style.display = '';
+  document.getElementById(prefix + '-share-btn').style.display = '';
+  const homeBtn = document.getElementById(prefix + '-home-btn');
+  homeBtn.textContent = 'GO HOME';
+  homeBtn.className = 'go-home-btn';
+  homeBtn.style.marginTop = '';
+  homeBtn.onclick = goHome;
+  const nextBtn = document.getElementById(prefix + '-next-proj-btn');
+  if (nextBtn) nextBtn.style.display = 'none';
+}
+
+function getNextUnplayedPuzzle(afterDateStr) {
+  const todayStr = getTodayString();
+  const history  = loadArchiveHistory();
+  return PUZZLES
+    .filter(p => p.date > afterDateStr && p.date <= todayStr && !history[p.date]?.result)
+    .sort((a, b) => a.date.localeCompare(b.date))[0] || null;
+}
+
+// ─── ARCHIVE SUCCESS / FAILURE SCREENS ────────────────────────────────────────
+function showArchiveSuccessScreen(guessNum, playedDate, reviewOnly = false) {
+  const p = state.puzzle;
+  const labels = ['1 ATTEMPT', '2 ATTEMPTS', '3 ATTEMPTS', '4 ATTEMPTS'];
+  let attempts = guessNum;
+  if (reviewOnly && !attempts) {
+    const h = loadArchiveHistory();
+    const entry = h[playedDate];
+    attempts = entry && entry.attempts ? entry.attempts : null;
+  }
+  document.getElementById('success-subhead').textContent = attempts
+    ? 'PROBLEM IDENTIFIED IN ' + labels[attempts - 1]
+    : 'PROBLEM IDENTIFIED';
+  document.getElementById('success-photo').src = p.photo;
+  document.getElementById('success-name').textContent = p.name;
+  document.getElementById('success-location').textContent = p.location;
+  document.getElementById('success-grade').textContent = p.grade;
+  showScreen('screen-success');
+  setArchiveResultUI('success', playedDate, reviewOnly);
+}
+
+function showArchiveFailureScreen(playedDate, reviewOnly = false) {
+  const p = state.puzzle;
+  document.getElementById('failure-photo').src = p.photo;
+  document.getElementById('failure-name').textContent = p.name;
+  document.getElementById('failure-location').textContent = p.location;
+  document.getElementById('failure-grade').textContent = p.grade;
+  showScreen('screen-failure');
+  setArchiveResultUI('failure', playedDate, reviewOnly);
+}
+
+// ─── VIEW COMPLETED ARCHIVE RESULT ────────────────────────────────────────────
+function viewArchivedResult(dateStr, result) {
+  const puzzle = PUZZLES.find(p => p.date === dateStr);
+  if (!puzzle) return;
+  state.puzzle = puzzle;
+  archiveDatePlaying = null;
+  if (result === 'win') {
+    showArchiveSuccessScreen(null, dateStr, true);
+  } else {
+    showArchiveFailureScreen(dateStr, true);
+  }
+}
 
 // ─── INIT ──────────────────────────────────────────────────────────────────────
 renderHome();
