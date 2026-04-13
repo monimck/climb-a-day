@@ -17,9 +17,9 @@ Update `puzzles.js` — this is the only file that needs to be updated when addi
 }
 ```
 
-Hints are auto-generated from `grade` and `location`:
-- Guess 3 hint → `Hint: V15 boulder`
-- Guess 4 hint → `Hint: Located in Rocklands, ZA`
+Hints are auto-generated from `grade`, `location`, and boulder name:
+- Guess 3 hint → `Hint: V15 in Rocklands, South Africa`
+- Guess 4 hint → "Tap to reveal first letter" → `Name begins with F`
 
 ## Adding Photos
 
@@ -35,7 +35,7 @@ Drop your boulder photos into the `images/` folder. Recommended:
 on-sight/
 ├── index.html       ← The app (HTML + CSS)
 ├── app.js           ← Game logic
-├── puzzles.js       ← All puzzle data — edit this to add new problems
+├── puzzles.js       ← All puzzle data — where new problems are added
 ├── manifest.json    ← PWA manifest (app name, icon, colors)
 ├── sw.js            ← Service worker (offline support)
 ├── README.md        ← This file
