@@ -23,7 +23,7 @@ const PUZZLES = [
     aliases: ["Pamplemouse"],
     grade: "V10",
     location: "Brione, Switzerland",
-    photo: "images/pamplemousse.png"
+    photo: "images/pamplemousse.jpg"
   },
   {
     date: "2026-03-23",
