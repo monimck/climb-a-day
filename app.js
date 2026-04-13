@@ -135,6 +135,11 @@ function viewTodayResult() {
   const stats = loadStats();
   state.puzzle = getTodayPuzzle();
   if (stats.lastResult === 'win') {
+    if (!stats.lastGuessNum) {
+      const h = loadArchiveHistory();
+      const entry = h[getTodayString()];
+      if (entry && entry.attempts) stats.lastGuessNum = entry.attempts;
+    }
     showSuccessScreen(stats);
   } else {
     showFailureScreen(stats);
@@ -382,111 +387,7 @@ async function shareResult() {
   }
 }
 
-// ─── ARCHIVE SUCCESS / FAILURE ─────────────────────────────────────────────────
-// ─── HELPERS: show/hide archive UI ─────────────────────────────────────────────
-function setArchiveResultUI(prefix, playedDate, reviewOnly = false) {
-  // Hide stat cards, tagline, share button
-  document.getElementById(prefix + '-result-stats').style.display = 'none';
-  document.getElementById(prefix + '-tagline').style.display = 'none';
-  document.getElementById(prefix + '-share-btn').style.display = 'none';
-
-  // Style "Back to Archive" as secondary (outline) button
-  const homeBtn = document.getElementById(prefix + '-home-btn');
-  homeBtn.textContent = 'BACK TO ARCHIVE';
-  homeBtn.className = 'submit-boulder-btn archive-btn';
-  homeBtn.style.marginTop = '0';
-  homeBtn.onclick = () => {
-    archiveDatePlaying = null;
-    resetResultUI('success');
-    resetResultUI('failure');
-    showArchiveScreen();
-  };
-
-  // Add "Next Proj" as primary button above "Back to Archive" (not shown in review mode)
-  const nextPuzzle = reviewOnly ? null : getNextUnplayedPuzzle(playedDate);
-  let nextBtn = document.getElementById(prefix + '-next-proj-btn');
-  if (!nextBtn) {
-    nextBtn = document.createElement('button');
-    nextBtn.id = prefix + '-next-proj-btn';
-    nextBtn.className = 'go-home-btn';
-    nextBtn.style.marginBottom = '12px';
-    homeBtn.parentNode.insertBefore(nextBtn, homeBtn);
-  }
-  if (nextPuzzle) {
-    nextBtn.textContent = 'NEXT PROJ';
-    nextBtn.style.display = 'block';
-    nextBtn.onclick = () => { startArchiveGame(nextPuzzle.date); };
-  } else {
-    nextBtn.style.display = 'none';
-  }
-}
-
-function resetResultUI(prefix) {
-  document.getElementById(prefix + '-result-stats').style.display = '';
-  document.getElementById(prefix + '-tagline').style.display = '';
-  document.getElementById(prefix + '-share-btn').style.display = '';
-  const homeBtn = document.getElementById(prefix + '-home-btn');
-  homeBtn.textContent = 'GO HOME';
-  homeBtn.className = 'go-home-btn';
-  homeBtn.style.marginTop = '';
-  homeBtn.onclick = goHome;
-  const nextBtn = document.getElementById(prefix + '-next-proj-btn');
-  if (nextBtn) nextBtn.style.display = 'none';
-}
-
-function getNextUnplayedPuzzle(afterDateStr) {
-  const todayStr = getTodayString();
-  const history = loadArchiveHistory();
-  // Find past puzzles after the given date, not yet played, sorted ascending
-  return PUZZLES
-    .filter(p => p.date > afterDateStr && p.date <= todayStr && !history[p.date])
-    .sort((a, b) => a.date.localeCompare(b.date))[0] || null;
-}
-
-function showArchiveSuccessScreen(guessNum, playedDate, reviewOnly = false) {
-  const p = state.puzzle;
-  const labels = ['1 ATTEMPT', '2 ATTEMPTS', '3 ATTEMPTS', '4 ATTEMPTS'];
-  let attempts = guessNum;
-  if (reviewOnly && !attempts) {
-    const h = loadArchiveHistory();
-    const entry = h[playedDate];
-    attempts = entry && entry.attempts ? entry.attempts : null;
-  }
-  document.getElementById('success-subhead').textContent = attempts
-    ? 'PROBLEM IDENTIFIED IN ' + labels[attempts - 1]
-    : 'PROBLEM IDENTIFIED';
-  document.getElementById('success-photo').src = p.photo;
-  document.getElementById('success-name').textContent = p.name;
-  document.getElementById('success-location').textContent = p.location;
-  document.getElementById('success-grade').textContent = p.grade;
-  showScreen('screen-success');
-  setArchiveResultUI('success', playedDate, reviewOnly);
-}
-
-function showArchiveFailureScreen(playedDate, reviewOnly = false) {
-  const p = state.puzzle;
-  document.getElementById('failure-photo').src = p.photo;
-  document.getElementById('failure-name').textContent = p.name;
-  document.getElementById('failure-location').textContent = p.location;
-  document.getElementById('failure-grade').textContent = p.grade;
-  showScreen('screen-failure');
-  setArchiveResultUI('failure', playedDate, reviewOnly);
-}
-
-// ─── VIEW COMPLETED ARCHIVE RESULT ────────────────────────────────────────────
-function viewArchivedResult(dateStr, result) {
-  const puzzle = PUZZLES.find(p => p.date === dateStr);
-  if (!puzzle) return;
-  state.puzzle = puzzle;
-  archiveDatePlaying = null;
-  if (result === 'win') {
-    showArchiveSuccessScreen(null, dateStr, true);
-  } else {
-    showArchiveFailureScreen(dateStr, true);
-  }
-}
-
-
+// ─── GO HOME ───────────────────────────────────────────────────────────────────
 function goHome() {
   archiveDatePlaying = null;
   resetResultUI('success');
@@ -541,9 +442,8 @@ let archiveYear = null;
 let archiveMonth = null; // 0-indexed
 
 const MONTH_NAMES_SHORT = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-const MONTH_NAMES_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-/** Load the per-date play history map {dateStr: 'win'|'punt'} */
+/** Load the per-date play history map { dateStr: { result, attempts } } */
 function loadArchiveHistory() {
   try {
     return JSON.parse(localStorage.getItem('cadArchiveHistory')) || {};
@@ -554,27 +454,6 @@ function saveArchiveHistory(h) {
   localStorage.setItem('cadArchiveHistory', JSON.stringify(h));
 }
 
-/**
- * Migrate existing stats into archive history on first load.
- * We know lastPlayedDate and lastResult from cadStats — seed that entry.
- */
-function migrateStatsToArchive() {
-  const stats = loadStats();
-  if (!stats.lastPlayedDate || !stats.lastResult) return;
-  const h = loadArchiveHistory();
-  const existing = h[stats.lastPlayedDate];
-  // Migrate old string-format entries to object format
-  Object.keys(h).forEach(date => {
-    if (typeof h[date] === 'string') {
-      h[date] = { result: h[date], attempts: null };
-    }
-  });
-  if (!existing) {
-    h[stats.lastPlayedDate] = { result: stats.lastResult === 'win' ? 'win' : 'punt', attempts: stats.lastGuessNum || null };
-  }
-  saveArchiveHistory(h);
-}
-
 /** Call this whenever a game finishes to record it in the archive */
 function recordArchiveResult(dateStr, result, attempts) {
   const h = loadArchiveHistory();
@@ -583,13 +462,10 @@ function recordArchiveResult(dateStr, result, attempts) {
 }
 
 function showArchiveScreen(resetMonth = false) {
-  migrateStatsToArchive();
-  console.log('[Archive] showArchiveScreen called. resetMonth=', resetMonth, 'archiveYear=', archiveYear, 'archiveMonth=', archiveMonth);
   if (resetMonth || archiveYear === null || archiveMonth === null) {
     const today = new Date();
     archiveYear  = today.getFullYear();
     archiveMonth = today.getMonth();
-    console.log('[Archive] Reset to current month:', archiveYear, archiveMonth);
   }
   renderArchiveCalendar();
   showScreen('screen-archive');
@@ -606,16 +482,13 @@ function renderArchiveCalendar() {
   const today    = new Date();
   const todayStr = getTodayString();
 
-  // Earliest puzzle date
-  const firstPuzzleDate = PUZZLES.reduce((min, p) => p.date < min ? p.date : min, PUZZLES[0].date);
-
-  document.getElementById('archive-month-name').textContent = MONTH_NAMES_SHORT[archiveMonth];
-  document.getElementById('archive-month-year').textContent = archiveYear;
-
-  // Find the earliest and latest months that have puzzles
+  // Find the earliest month that has a puzzle
   const firstPuzzle = PUZZLES.reduce((min, p) => p.date < min ? p.date : min, PUZZLES[0].date);
   const firstPuzzleYear  = parseInt(firstPuzzle.slice(0, 4));
   const firstPuzzleMonth = parseInt(firstPuzzle.slice(5, 7)) - 1;
+
+  document.getElementById('archive-month-name').textContent = MONTH_NAMES_SHORT[archiveMonth];
+  document.getElementById('archive-month-year').textContent = archiveYear;
 
   // Disable prev btn if on the earliest puzzle month, next btn if on current month
   const prevBtn = document.getElementById('archive-prev-btn');
@@ -628,10 +501,8 @@ function renderArchiveCalendar() {
   // Build a set of dates that have puzzles
   const puzzleDates = new Set(PUZZLES.map(p => p.date));
 
-  // First day of month (0=Sun … 6=Sat); convert to Mon-based (0=Mon … 6=Sun)
   const firstDay = new Date(archiveYear, archiveMonth, 1);
-  let startDow = firstDay.getDay(); // 0=Sun, already correct for Sun-start
-
+  const startDow = firstDay.getDay(); // 0=Sun
   const daysInMonth = new Date(archiveYear, archiveMonth + 1, 0).getDate();
 
   const grid = document.getElementById('archive-cal-grid');
@@ -643,8 +514,8 @@ function renderArchiveCalendar() {
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
-    const mm   = String(archiveMonth + 1).padStart(2, '0');
-    const dd   = String(d).padStart(2, '0');
+    const mm      = String(archiveMonth + 1).padStart(2, '0');
+    const dd      = String(d).padStart(2, '0');
     const dateStr = `${archiveYear}-${mm}-${dd}`;
 
     const isToday   = dateStr === todayStr;
@@ -656,18 +527,15 @@ function renderArchiveCalendar() {
     const cell = document.createElement('div');
     cell.className = 'archive-cal-cell';
 
-    // Date number
     const dateEl = document.createElement('div');
     dateEl.className = 'archive-cal-date' + (isToday ? ' today' : '');
     dateEl.textContent = d;
     cell.appendChild(dateEl);
 
-    // Circle
     const circle = document.createElement('div');
     circle.className = 'archive-cal-circle';
 
     if (!hasPuzzle || isFuture) {
-      // Grey empty circle (no puzzle, or future)
       circle.classList.add('empty');
     } else if (result === 'win') {
       circle.classList.add('sent');
@@ -680,12 +548,10 @@ function renderArchiveCalendar() {
       circle.style.cursor = 'pointer';
       circle.onclick = () => { viewArchivedResult(dateStr, 'punt'); };
     } else if (isToday) {
-      // Today, not yet played — green play (today's game)
       circle.classList.add('playable', 'today-marker');
       circle.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
       circle.onclick = () => { startGame(); };
     } else {
-      // Past date with puzzle, not played — playable archive entry
       circle.classList.add('playable');
       circle.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
       circle.onclick = () => { startArchiveGame(dateStr); };
@@ -694,7 +560,6 @@ function renderArchiveCalendar() {
     cell.appendChild(circle);
     grid.appendChild(cell);
   }
-
 }
 
 function emptyCell() {
@@ -714,20 +579,119 @@ function startArchiveGame(dateStr) {
   const puzzle = PUZZLES.find(p => p.date === dateStr);
   if (!puzzle) { showToast('No puzzle for that date'); return; }
 
-  // Ensure archiveYear/Month reflect the month this puzzle belongs to,
-  // so Back to Archive always returns to the right month.
+  // Set archive month so Back to Archive returns to the right month
   archiveYear  = parseInt(dateStr.slice(0, 4));
   archiveMonth = parseInt(dateStr.slice(5, 7)) - 1;
-  console.log('[Archive] startArchiveGame set month:', archiveYear, archiveMonth, 'for', dateStr);
 
-  archiveDatePlaying   = dateStr;
-  state.puzzle         = puzzle;
-  state.currentGuess   = 0;
-  state.finished       = false;
-  state.pastGuesses    = [];
+  archiveDatePlaying = dateStr;
+  state.puzzle       = puzzle;
+  state.currentGuess = 0;
+  state.finished     = false;
+  state.pastGuesses  = [];
 
   renderGameScreen();
   showScreen('screen-game');
+}
+
+// ─── ARCHIVE RESULT UI HELPERS ─────────────────────────────────────────────────
+function setArchiveResultUI(prefix, playedDate, reviewOnly = false) {
+  document.getElementById(prefix + '-result-stats').style.display = 'none';
+  document.getElementById(prefix + '-tagline').style.display = 'none';
+  document.getElementById(prefix + '-share-btn').style.display = 'none';
+
+  const homeBtn = document.getElementById(prefix + '-home-btn');
+  homeBtn.textContent = 'BACK TO ARCHIVE';
+  homeBtn.className = 'submit-boulder-btn archive-btn';
+  homeBtn.style.marginTop = '0';
+  homeBtn.onclick = () => {
+    archiveDatePlaying = null;
+    resetResultUI('success');
+    resetResultUI('failure');
+    showArchiveScreen();
+  };
+
+  // "Next Proj" button — only shown after playing (not in review mode)
+  const nextPuzzle = reviewOnly ? null : getNextUnplayedPuzzle(playedDate);
+  let nextBtn = document.getElementById(prefix + '-next-proj-btn');
+  if (!nextBtn) {
+    nextBtn = document.createElement('button');
+    nextBtn.id = prefix + '-next-proj-btn';
+    nextBtn.className = 'go-home-btn';
+    nextBtn.style.marginBottom = '12px';
+    homeBtn.parentNode.insertBefore(nextBtn, homeBtn);
+  }
+  if (nextPuzzle) {
+    nextBtn.textContent = 'NEXT PROJ';
+    nextBtn.style.display = 'block';
+    nextBtn.onclick = () => { startArchiveGame(nextPuzzle.date); };
+  } else {
+    nextBtn.style.display = 'none';
+  }
+}
+
+function resetResultUI(prefix) {
+  document.getElementById(prefix + '-result-stats').style.display = '';
+  document.getElementById(prefix + '-tagline').style.display = '';
+  document.getElementById(prefix + '-share-btn').style.display = '';
+  const homeBtn = document.getElementById(prefix + '-home-btn');
+  homeBtn.textContent = 'GO HOME';
+  homeBtn.className = 'go-home-btn';
+  homeBtn.style.marginTop = '';
+  homeBtn.onclick = goHome;
+  const nextBtn = document.getElementById(prefix + '-next-proj-btn');
+  if (nextBtn) nextBtn.style.display = 'none';
+}
+
+function getNextUnplayedPuzzle(afterDateStr) {
+  const todayStr = getTodayString();
+  const history  = loadArchiveHistory();
+  return PUZZLES
+    .filter(p => p.date > afterDateStr && p.date <= todayStr && !history[p.date]?.result)
+    .sort((a, b) => a.date.localeCompare(b.date))[0] || null;
+}
+
+// ─── ARCHIVE SUCCESS / FAILURE SCREENS ────────────────────────────────────────
+function showArchiveSuccessScreen(guessNum, playedDate, reviewOnly = false) {
+  const p = state.puzzle;
+  const labels = ['1 ATTEMPT', '2 ATTEMPTS', '3 ATTEMPTS', '4 ATTEMPTS'];
+  let attempts = guessNum;
+  if (reviewOnly && !attempts) {
+    const h = loadArchiveHistory();
+    const entry = h[playedDate];
+    attempts = entry && entry.attempts ? entry.attempts : null;
+  }
+  document.getElementById('success-subhead').textContent = attempts
+    ? 'PROBLEM IDENTIFIED IN ' + labels[attempts - 1]
+    : 'PROBLEM IDENTIFIED';
+  document.getElementById('success-photo').src = p.photo;
+  document.getElementById('success-name').textContent = p.name;
+  document.getElementById('success-location').textContent = p.location;
+  document.getElementById('success-grade').textContent = p.grade;
+  showScreen('screen-success');
+  setArchiveResultUI('success', playedDate, reviewOnly);
+}
+
+function showArchiveFailureScreen(playedDate, reviewOnly = false) {
+  const p = state.puzzle;
+  document.getElementById('failure-photo').src = p.photo;
+  document.getElementById('failure-name').textContent = p.name;
+  document.getElementById('failure-location').textContent = p.location;
+  document.getElementById('failure-grade').textContent = p.grade;
+  showScreen('screen-failure');
+  setArchiveResultUI('failure', playedDate, reviewOnly);
+}
+
+// ─── VIEW COMPLETED ARCHIVE RESULT ────────────────────────────────────────────
+function viewArchivedResult(dateStr, result) {
+  const puzzle = PUZZLES.find(p => p.date === dateStr);
+  if (!puzzle) return;
+  state.puzzle = puzzle;
+  archiveDatePlaying = null;
+  if (result === 'win') {
+    showArchiveSuccessScreen(null, dateStr, true);
+  } else {
+    showArchiveFailureScreen(dateStr, true);
+  }
 }
 
 // ─── INIT ──────────────────────────────────────────────────────────────────────
