@@ -401,6 +401,21 @@ function showSubmitScreen() {
   showScreen('screen-submit');
 }
 
+// ─── INSTALL SCREEN ────────────────────────────────────────────────────────────
+function showInstallScreen() {
+  showInstallTab('ios');
+  showScreen('screen-install');
+}
+
+function showInstallTab(id) {
+  ['ios', 'android', 'desktop'].forEach(tab => {
+    document.getElementById('install-panel-' + tab).classList.toggle('active', tab === id);
+  });
+  document.querySelectorAll('.install-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', ['ios', 'android', 'desktop'][i] === id);
+  });
+}
+
 function openMailto() {
   const em = 'onsightbouldersubmissions' + '@' + 'gmail.com';
   const sub = 'On Sight Boulder Submission';
